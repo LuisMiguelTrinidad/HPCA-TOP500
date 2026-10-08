@@ -75,42 +75,49 @@ Esto permitía incrementar de forma lineal la frecuencia de reloj con la miniatu
 No obstante, este paradigma colapsó @bohr2007 a principios de la década de los 2000, cuando los avances en litografía hicieron que comenzasen a manifestarse de forma significativa los efectos de la mecánica cuántica.
 Específicamente, la aparición del efecto túnel electrónico impidió seguir reduciendo el voltaje umbral, desatando corrientes de fuga insostenibles y cristalizando la barrera de potencia (power wall).
 
-Paralelamente, la ley de Moore @moore2006_1, que inicialmente predecía la duplicación de la densidad de transistores anualmente, y posteriormente de forma bianual @moore2006_2, ha sufrido una severa ralentización atribuida tanto al incremento exponencial del coste del equipamiento necesario para las nuevas litografías EUV @Waldrop2016TheCA, como a la aproximación a los límites atómicos del silicio /*Otra cita aquí que desglose la evolución histórica de los procesos litográficos y sus densidades*/.
+Paralelamente, la ley de Moore @moore2006_1, que inicialmente predecía la duplicación de la densidad de transistores anualmente, y posteriormente de forma bianual @moore2006_2, ha sufrido una severa ralentización atribuida tanto al incremento exponencial del coste del equipamiento necesario para las nuevas litografías EUV @Waldrop2016TheCA, como a la aproximación a los límites atómicos del silicio. /*Tal vez una cita aquí */
 La desaceleración de este modelo ha llevado recientemente al planteamiento de nuevos paradigmas de escalado basados en la minimización de los retrasos de la propagación de señales mediante el paso de arquitecturas 2D a integración vertical @he2026.
 
-Ante el estancamiento del escalado vertical basado en frecuencia, la respuesta de la industria consistió en la explotación sistemática del escalado horizontal y el paralelismo a nivel de hilo (TLP). AMD fue pionera en la transición hacia procesadores multnúcleo en 2005, con la introducción del Athlon 64 X2 /*cita aqui */.
-Dos décadas después, la explotación del TLP en sistemas de memoria compartida ha alcanzado métricas sin precedentes, como demuestra la sexta generación de procesadores AMD EPYC, capaces de integrar hasta 256 núcleos por _socket_ /*cita aqui */.
-
-La respuesta microarquitectónica fue el pivotaje del escalado vertical (frecuencia) hacia el escalado horizontal, con el desarrollo de multiprocesadores, del que fue pionero AMD con el lanzamiento de su AMD Athlon X2 en 2005.
-Dos décadas después, la explotación del paralelismo a nivel de hilo (TLP) ha escalado hasta alcanzar los 256 núcleos en la sexta generación de procesadores AMD Epyc. /*cita*/ /* 256 nucleos - https://newsroom.amd.com/news/aai-2026-6th-gen-epyc/ */
+Ante el estancamiento del escalado vertical basado en frecuencia, la respuesta de la industria consistió en la explotación sistemática del escalado horizontal y el paralelismo a nivel de hilos (TLP) @peng2007memory.
+AMD fue pionera en la transición hacia procesadores multinúcleo x86 en 2005, con la introducción del Athlon 64 X2 de diseño monolítico nativo@amd2007athlon.
+Dos décadas después, la explotación del TLP en sistemas de memoria compartida ha alcanzado métricas sin precedentes, como demuestra la sexta generación de procesadores AMD EPYC, capaces de integrar hasta 256 núcleos por _socket_ @amd2026epyc9006.
 
 Pese a este drástico escalado, los procesadores de propósito general exhiben ineficiencias arquitectónicas frente a cargas de trabajo altamente paralelizables.
 Estos problemas requieren del uso de aceleradores especializados, como las unidades de procesamiento gráfico (GPU), que rescinden del control de flujo monohilo en favor del paradigma paralelo SIMT.
-No obstante, los requerimientos contemporáneos no solo exceden la capacidad térmica y geométrica de un único circuito integrado, sino también por las necesidades de transferencia de datos de la memoria a las unidades de cómputo.
-El desequilibrio histórico entre el rápido aumento de la capacidad de cómputo y el mas lento aumento del ancho de banda de memoria da lugar a un cuello de memoria sistémico, que fue por primera vez presentado en /*año, cita de memory wall original del articulo de wulf*/, y que cobra cada vez mas relevancia en el ámbito del entrenamiento de grandes modelos de lenguaje tal como refleja Gholami et Al /*cita*/.
+No obstante, los requerimientos contemporáneos no solo exceden la capacidad computacional de un único circuito integrado, sino también la capacidad de transferencia de datos de las unidades de memoria a las de cómputo.
+El desequilibrio histórico entre el rápido aumento de la capacidad de cómputo y el mas lento aumento del ancho de banda de memoria da lugar a un cuello de memoria sistémico, que fue por primera vez presentado en 1995 @wulf1995, y que cobra cada vez mas relevancia en el ámbito del entrenamiento de grandes modelos de lenguaje tal como refleja Gholami et Al @gholami2024.
+
+En este marco de IA soberana se fundamenta el proyecto estratégico AI Research Resource (AIRR) [1] del gobierno británico, junto al Bristol Centre for Supercomputing [2], ambos responsables de Isambard-AI phase 2 [3], la infraestructura de supercomputación orientada a IA más avanzada del Reino Unido.
 
 Para poder sortear este cuello de botella y abordar el cómputo a exaescala, resulta imperativo el despliegue de clústeres heterogéneos interconectados mediante topologías de red de alto ancho de banda y baja latencia.
-En el contexto geopolítico, esta infraestructura masiva resulta crítica para el entrenamiento y desarrollo de modelos fundacionales /* Fundacionales? */ con el fin de garantizar la soberanía tecnológica nacional.
-En este marco de "IA soberana" se fundamenta el proyecto estratégico AI Research Resource (AIRR) /*cita */ del gobierno Británico, junto al Bristol Centre for SuperComputing /*cita*/, ambos responsables de Isambard-AI phase 2 /* cita*/, la infraestructura de supercomputación orientada a IA mas avanzada de Reino Unido.
+En el contexto geopolítico, esta infraestructura masiva resulta crítica para el entrenamiento y desarrollo de grandes modelos de lenguaje con el fin de garantizar la soberanía tecnológica nacional.
+En este marco de _IA soberana_ se fundamenta el proyecto estratégico AI Research Resource (AIRR) @ukgov_airr_2025 del gobierno Británico, junto al Bristol Centre for SuperComputing @bristol_isambard_2025, ambos responsables de Isambard-AI phase 2, la infraestructura de supercomputación orientada a IA mas avanzada de Reino Unido.
 
-El presente informe desglosará de manera analítica y sistemática el clúster Isambard-AI phase 2, actual decimotercer puesto en la lista TOP500.
+El presente informe desglosará de manera analítica y sistemática el clúster Isambard-AI phase 2, actual decimotercer puesto en la lista TOP500 @top500_isambard2_2025.
+/* Aqui hay que usar referencia a las distintas secciones, como en el paper de sarteco. */
 Para ello, se adopta una aproximación arquitectónica jerárquica: partiendo de la infraestructura física subyacente y las instalaciones (Facility Level), seguida del análisis estructural de los bastidores y la topología de la interconexión de red, la evaluación de la jerarquía de memoria del sistema y, finalmente, la caracterización microarquitectónica de los nodos computacionales, concluyendo con una validación empírica y teórica mediante benchmarks de rendimiento.
 
 = System Overview & Facility Level
-A alto nivel, el cluster Isambard-AI está formado por un total de 5448 superchips NVIDIA GH200 (Grace Hopper) /*cita aqui */. Estos componentes están distribuidos a lo largo de 13 racks de alta densidad. El primer rack, un HPE Cray EX2500 pertenece al supercomputador Isambard-AI phase 1, mientras que los otros 12 racks, HPE Cray EX4000, pertenecen al superordenadoer Isambard-AI phase 2/*cita para lo del phase 1 y 2*/, el que se desglosa en el presente documento. El superordenador opera bajo un consumo energético de 5MW, proporcionando una potencia computacional máxima de 216,50 en FP64 /*CITA*/. Por otro lado, gracias a la arquitectura tensorial proporcionada por las GPU Nvidia, es capaz de alcanzar 21EFlops/s en formato FP8 /*Cita*/.
+A alto nivel, el cluster Isambard-AI está formado por un total de 5448 superchips NVIDIA GH200 (Grace Hopper) /*cita aqui */.
+Estos componentes están distribuidos a lo largo de 13 racks de alta densidad.
+El primer rack, un HPE Cray EX2500 pertenece al supercomputador Isambard-AI phase 1, mientras que los otros 12 racks, HPE Cray EX4000, pertenecen al superordenadoer Isambard-AI phase 2/*cita para lo del phase 1 y 2*/, el que se desglosa en el presente documento.
+El superordenador opera bajo un consumo energético de 5MW, proporcionando una potencia computacional máxima de 216,50 en FP64 /*CITA*/.
+Por otro lado, gracias a la arquitectura tensorial proporcionada por las GPU Nvidia, es capaz de alcanzar 21EFlops/s en formato FP8 /*Cita*/.
 
 
 == Breve historia del proyecto
-La concepción del sistema responde de forma directa a políticas de soberanía de datos y seguridad nacional. A diferencia de infraestructuras paneuropeas desarrolladas bajo el consorcio EuroHPC, el gobierno británico desarrolló su propia estrategia bajo el programa _AI Research Resource_ (AIRR) /*cita*/. Esta iniciativa gubernamental supuso la inyección inicial de 225 millones de libras esterlinas en otoño de 2023. /*CIta a nota de prensa*/
+La concepción del sistema responde de forma directa a políticas de soberanía de datos y seguridad nacional.
+A diferencia de infraestructuras paneuropeas desarrolladas bajo el consorcio EuroHPC, el gobierno británico desarrolló su propia estrategia bajo el programa _AI Research Resource_ (AIRR) /*cita*/.
+Esta iniciativa gubernamental supuso la inyección inicial de 225 millones de libras esterlinas en otoño de 2023. /*CIta a nota de prensa*/
 
-La ejecución del proyecto recayó en la universidad de Bristol debido a su experiencia probada con los clústeres Isambard 1 y 2 /* https://gw4.ac.uk/case-studies/gw4-supercomputer-isambard/ */ . Concretamente, el clúster está bajo la supervisión del Prof. Simon McIntosh-Smith, director del _Bristol Centre for Supercomputing_ (BriCS), y la Dra. Sadaf Alam, directora de tecnología (CTO) de la misma institución/*citas a algun lado que diga que son los jefazos y cita a sus perfiles de la universidad*/. El sistema fue ensamblado colaborativamente por Hewlett Packard Enterprise (HPE) y NVIDIA, y a pesar de la complejidad logística del mismo, la fase 1 fue completada en tiempo récord, pasando de la firma del contrato a un estado operacional en menos de 4 meses./*citas aqui*/
+La ejecución del proyecto recayó en la universidad de Bristol debido a su experiencia probada con los clústeres Isambard 1 y 2/* https://gw4.ac.uk/case-studies/gw4-supercomputer-isambard/ */.
+Concretamente, el clúster está bajo la supervisión del Prof. Simon McIntosh-Smith, director del _Bristol Centre for Supercomputing_ (BriCS), y la Dra. Sadaf Alam, directora de tecnología (CTO) de la misma institución/*citas a algun lado que diga que son los jefazos y cita a sus perfiles de la universidad*/. El sistema fue ensamblado colaborativamente por Hewlett Packard Enterprise (HPE) y NVIDIA, y a pesar de la complejidad logística del mismo, la fase 1 fue completada en tiempo récord, pasando de la firma del contrato a un estado operacional en menos de 4 meses./*citas aqui*/
 
 #image("figures/vista_aerea.png")
 
 == Instalaciones
 El sistema físico se aloja en el _National Composites Centre_ (NCC), ubicado en el _Bristol and Bath Science Park_ /*CIta*/. Comparte recinto con la fase 1 del proyecto Isambard-AI, así como con el cluster Isambard 3, basado exclusivamente en CPU Nvidia Grace /*cita*/.
 Debido a las estrictas limitaciones espaciales, con tan solo ~550 metros cuadrados disponibles ($15.6 times 35 m$)/*cita*/, el sistema no podía ser desplegado en una sala blanca convencional /*CItar la iso de salas blancas*/. En su lugar, se implementó una solución autocontenida que encapsula nodos, transformación eléctrica, y estaciones de bombeo dentro del propio habitáculo. Para ello se empleó una arquitectura de centro de datos modular, lo que permitió reducir un 72% de las emisiones derivadas de su construcción en comparación con los centros de datos convencionales/*cita del paper*/.
-
 
 #image("figures/cluster_borrar.png") /*redescargar la imagen con la resolución total.*/
 
