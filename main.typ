@@ -93,20 +93,19 @@ El sistema ostenta una Efectividad del Uso de la Energía (PUE) nominal de $1.08
 El impacto mediambiental derivado del consumo de la máquina se minimiza a través de su política de aprovisionamiento eléctrico.
 Si bien su alto consumo de 5MW implicó la necesidad de una conexión de alta capacidad directa a la red eléctrica nacional británica, el 100% de la energía suministrada al sistema procede de fuentes renovables de Reino Unido, abarcando no solo sitemas eólicos, solares e hidroeléctricos, sino también sistemas de almacenamiento en baterías /*cita*/.
 
-
 = Rack & System Interconnect Level
 La arquitectura a nivel de rack e interconexión está diseñada de forma jerárquica para maximizar la densidad de cómputo y minimizar la latencia, respondiendo a las exigencias operacionales de las cargas de trabajo de inteligencia artifical contemporáneas.
-A nivel de bastidor, cada uno de los 12 disponibles contiene un total de 110 nodos computacionales, lo que se traduce en un total de 440 superchips NVIDIA GH200 por armario. Cada uno se estos chips contiene un procesador con 72 núcleos, así como 72 gráficas Nvidia Tesla H100 de arquitectura Hopper.
+A nivel de bastidor, cada uno de los 12 HPE Cray EX4000 /*cita */ disponibles contiene un total de 110 nodos computacionales, lo que se traduce en un total de 440 superchips NVIDIA GH200 por armario. Cada uno se estos chips contiene un procesador NVIDIA Grace de 72 núcleos (arquitectura ARM Neoverse V2) , así como GPU NVIDIA H100 (arquitectura Hopper).
 
 /*Incluir una imagen de los racks*/
 
-Dentro de cada chasis, la unidad básica es el _blade_ acelerador HPE Cray EX254n. Esta placa aloja dos nodos independientes, que a su vez, se componen de 4 superchips NVIDIA GH200, congregando un total de 8 GPUs y 8 CPUs por chasis.
+/*Reescribir este parrafo */
+Dentro de cada chasis, la unidad básica es el _blade_ acelerador HPE Cray EX254n. Esta placa aloja dos nodos computacionales independientes, que a su vez, se componen de 4 superchips NVIDIA GH200, congregando un total de 8 GPUs y 8 CPUs por chasis.
 
 #image("figures/borrar_y_mejorar_resolucion.png")
 
-A nivel de interconexión inter-nodo, la orquestración de la red se delega en la tecnología HPE Slingshot 11 /*cita de su especificacion */. Cada nodo hace uso de 4 de estas tarjetas de red, ofreciendo un ancho de banda total de $800$ Gb/s de forma uni/direccional /*Chequear */ por nodo hacia la red principal.
-
-ASímismo /* hablar de los switches, cuantos switches hay en total */
+A nivel de interconexión inter-nodo, la orquestración de la red se delega en la tecnología HPE Slingshot 11 /*cita de su especificacion */. Cada nodo hace uso de 4 tarjetas de red, ofreciendo un ancho de banda total de $800$ Gb/s de forma bidireccional /*cita a hpe */ por nodo hacia la red principal.
+Se hace uso de switches de 12.8 Tb/s unidireccionales, o 25.6Tb de forma bidireccional, siendo cada switch capaz de conectar 64 tarjetas de red, teniendo la particularidad que, a diferencia de switches convencionales, con multitud de puertos ethernet o sfp, estos switches se acoplan directamente a los chasis de cómputo.
 
 La topología de red empleada /*Hablar de Dragonfly high radix, con ilustraciones y citas al paper original */
 
