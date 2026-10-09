@@ -98,16 +98,14 @@ El presente informe desglosará de manera analítica y sistemática el clúster 
 Para ello, se adopta una aproximación arquitectónica jerárquica: partiendo de la infraestructura física subyacente y las instalaciones (Facility Level), seguida del análisis estructural de los bastidores y la topología de la interconexión de red, la evaluación de la jerarquía de memoria del sistema y, finalmente, la caracterización microarquitectónica de los nodos computacionales, concluyendo con una validación empírica y teórica mediante benchmarks de rendimiento.
 
 = System Overview & Facility Level
-A alto nivel, el cluster Isambard-AI está formado por un total de 5448 superchips NVIDIA GH200 (Grace Hopper) /*cita aqui */.
-Estos componentes están distribuidos a lo largo de 13 racks de alta densidad.
-El primer rack, un HPE Cray EX2500 pertenece al supercomputador Isambard-AI phase 1, mientras que los otros 12 racks, HPE Cray EX4000, pertenecen al superordenadoer Isambard-AI phase 2/*cita para lo del phase 1 y 2*/, el que se desglosa en el presente documento.
+A alto nivel, el cluster Isambard-AI está formado por un total de 5448 superchips NVIDIA GH200 (Grace Hopper) @nvidia_gh200_2024 distribuidos a lo largo de 13 racks de alta densidad.
+El primer rack, un HPE Cray EX2500 pertenece al supercomputador Isambard-AI phase 1, mientras que los otros 12 racks, HPE Cray EX4000, pertenecen al superordenadoer Isambard-AI phase 2 @mcintosh2025, el que se desglosa en el presente documento.
 El superordenador opera bajo un consumo energético de 5MW, proporcionando una potencia computacional máxima de 216,50 en FP64 /*CITA*/.
 Por otro lado, gracias a la arquitectura tensorial proporcionada por las GPU Nvidia, es capaz de alcanzar 21EFlops/s en formato FP8 /*Cita*/.
 
-
 == Breve historia del proyecto
 La concepción del sistema responde de forma directa a políticas de soberanía de datos y seguridad nacional.
-A diferencia de infraestructuras paneuropeas desarrolladas bajo el consorcio EuroHPC, el gobierno británico desarrolló su propia estrategia bajo el programa _AI Research Resource_ (AIRR) /*cita*/.
+A diferencia de infraestructuras paneuropeas desarrolladas bajo el consorcio EuroHPC, el gobierno británico desarrolló su propia estrategia bajo el programa _AI Research Resource_ (AIRR) @ukgov_airr_2025.
 Esta iniciativa gubernamental supuso la inyección inicial de 225 millones de libras esterlinas en otoño de 2023. /*CIta a nota de prensa*/
 
 La ejecución del proyecto recayó en la universidad de Bristol debido a su experiencia probada con los clústeres Isambard 1 y 2/* https://gw4.ac.uk/case-studies/gw4-supercomputer-isambard/ */.
