@@ -4,7 +4,6 @@
 #show: informe.with(
   asignatura: "HPA -- High Performance Architectures",
   trabajo: "TOP 500 SUPERCOMPUTERS REPORT",
-
   autores: (
     (
       nombre: "Trinidad Salvador, Luis Miguel",
@@ -30,17 +29,7 @@
 #include "sections/01_introduction.typ"
 #include "sections/02_facility.typ"
 #include "sections/03_topology.typ"
-
-= Memory Hierarchy Architecture
-Detalle aquí las conclusiones de su trabajo.
-
-/* A nivel de procesador, núm de registros, L1, L2, L3, RAM */
-/* Lo mismo para la GPU, tal vez fusionar esto con lo siguiente */
-/* Presentarlo en formato tabla, con los anchos de banda */
-
-= Processor & Accelerator Microarchitecture
-
-/* Número de unidades FP, número de Int, cuantas hacen mult, tabla como la del TFG, ancho de vector, número de cores, TFLOPS max, Intensidad aritmética... */
+#include "sections/04_chip.typ"
 
 = Empirical Performance & Benchmarks
 

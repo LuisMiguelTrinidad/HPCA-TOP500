@@ -22,7 +22,7 @@ Este diseño cumple fundamentalmente con 3 objetivos:
 Cada nodo hace uso de 4 tarjetas de red, ofreciendo un ancho de banda total de $800$ Gb/s de entrada y salida simultánea @bristol_isambard_2025 por nodo hacia la red principal.
 Para la interconexión entre nodos se hace uso de switches de 64 puertos, que ofrecen un total de 25.6Tb/s.
 
-A nivel macroscópico, la topología de red empleada es de tipo _Dragonfly_.
+A nivel macroscópico, la topología de red empleada es de tipo _Dragonfly_ @kim2008.
 Este diseño toma como base enmallados all-to-all de pequeños grupos de nodos, que se interconectan posteriormente entre sí, esto permite garantizar un diámetro de 3 saltos @hpe_slingshot_2026 para $lt.eq 37120$ endpoints.
 
 #image("../figures/dragonfly.pdf")
