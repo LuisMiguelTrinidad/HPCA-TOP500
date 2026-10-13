@@ -32,16 +32,16 @@ Este diseño toma como base enmallados all-to-all de pequeños grupos de nodos, 
 
 #figure(
 	image("../figures/dragonfly.pdf"),
-	caption: [Topología dragonfly],
+	caption: [Ejemplo de topología dragonfly],
 	kind: "Image",
 	supplement: "Figure"
 )
 
-Aunque se desconoce la implementación exacta de esta topología en el clúster Isambard-AI phase 2, es posible inferir, usando como referencia otros sistemas, como el sistema _Alps_, perteneciente al _Swiss National Supercomputing Centre_ @desensi2024. Una posible implementación de esta arquitectura para cada switch se ofrece en la figura /*numero*/.
+Aunque se desconoce la implementación exacta de esta topología en el clúster Isambard-AI phase 2, es posible inferir, usando como referencia otros sistemas, como el sistema _Alps_, perteneciente al _Swiss National Supercomputing Centre_ @desensi2024. Una posible implementación de esta arquitectura para cada switch se ofrece en la figura @fig-switches.
 
 #figure(
 	image("../figures/Switch-diagrama.pdf"),
 	caption: [Distribución de los switches en el superordenador _Alps_],
 	kind: "Image",
 	supplement: "Figure"
-)
+) <fig-switches>
