@@ -23,7 +23,7 @@
 #show ref: set text(blue)
 
 #show: rest => columns(2, rest)
-#set par(spacing: 1.2em, justify: true, first-line-indent: 1.3em)
+#set par(spacing: 1em, justify: true, first-line-indent: 1em)
 #set text(size: 11pt, lang: "en", region: "us")
 
 #include "sections/01_introduction.typ"

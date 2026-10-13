@@ -17,6 +17,8 @@ Las comunicaciones peer-to-peer (P2P) cruzadas entre distintos superchips del mi
 #figure(
   image("../figures/diagrama_borrar.png"),
   caption: [Esquema de un nodo de Isambard-AI phase 2: cuatro superchips GH200, cada uno con su CPU Grace, su GPU H100, sus memorias LPDDR5X y HBM3, su tarjeta de red Slingshot-11 y los enlaces NVLink-C2C intra-superchip.],
+  kind: "Image",
+	supplement: "Figure"
 ) <fig-node>
 
 == The CPU
@@ -72,7 +74,8 @@ La Tabla @tab-cpu resume sus características principales.
     )
   ],
   caption: [Características microarquitectónicas del procesador Grace (CPU) del superchip GH200 @nvidia_gh200_2024.],
-  kind: "table",
+  supplement: "Table",
+  kind: "Table"
 ) <tab-cpu>
 
 /*El dato está mal, serían 3GHz si eso, mañana lo reviso */
@@ -131,7 +134,8 @@ Su memoria HBM3 ofrece hasta $4$ TB/s y se comunica con la CPU mediante NVLink-C
     )
   ],
   caption: [Características microarquitectónicas de la GPU H100 (Hopper) del superchip GH200.],
-  kind: "table"
+  supplement: "Table",
+  kind: "Table"
 ) <tab-gpu>
 
 A escala del sistema completo ($5448$ superchips), el pico `fp8` disperso de $3958$ TFLOPS por GPU da el orden de $21$ EFLOPS.

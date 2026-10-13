@@ -14,14 +14,24 @@ La ejecución del proyecto recayó en la universidad de Bristol debido a su expe
 Concretamente, el clúster está bajo la supervisión del Prof. Simon McIntosh-Smith, director del _Bristol Centre for Supercomputing_ (BriCS), y la Dra. Sadaf Alam, directora de tecnología (CTO) de la misma institución/*citas a algun lado que diga que son los jefazos y cita a sus perfiles de la universidad*/.
 El sistema fue ensamblado colaborativamente por Hewlett Packard Enterprise (HPE) y NVIDIA, y a pesar de la complejidad logística del mismo, la fase 1 fue completada en tiempo récord, pasando de la firma del contrato a un estado operacional en menos de 4 meses./*citas aqui*/
 
-#image("../figures/vista_aerea.png")
+#figure(
+	image("../figures/vista_aerea.png"),
+	caption: [Vista aérea del centro de la construcción del centro de datos],
+	kind: "Image",
+	supplement: "Figure"
+)
 
 == Facilities
 El sistema físico se aloja en el _National Composites Centre_ (NCC), ubicado en el _Bristol and Bath Science Park_ /*CIta*/. Comparte recinto con la fase 1 del proyecto Isambard-AI, así como con el cluster Isambard 3, basado exclusivamente en CPU Nvidia Grace /*cita*/.
 Debido a las estrictas limitaciones espaciales, con tan solo ~550 metros cuadrados disponibles ($15.6 times 35 m$)/*cita*/, el sistema no podía ser desplegado en una sala blanca convencional/*CItar la iso de salas blancas*/.
 En su lugar, se implementó una solución autocontenida que encapsula nodos, transformación eléctrica, y estaciones de bombeo dentro del propio habitáculo. Para ello se empleó una arquitectura de centro de datos modular, lo que permitió reducir un 72% de las emisiones derivadas de su construcción en comparación con los centros de datos convencionales/*cita del paper*/.
 
-#image("../figures/cluster_borrar.png") /*redescargar la imagen con la resolución total.*/
+#figure(
+	image("../figures/cluster_borrar.png"), /*redescargar la imagen con la resolución total.*/
+	caption: [Diagrama de la distribución del sistema],
+	kind: "Image",
+	supplement: "Figure"
+)
 
 Para disipar la alta densidad de energía térmica generada, que excede los $400$ kW por rack, el uso de refrigeración por aire convencional se presenta inviable.
 En su lugar, se emplea Refrigeración Líquida Directa, solución estandarizada en los chasis HPE Cray Ex. /* otra cita por aquí*/
