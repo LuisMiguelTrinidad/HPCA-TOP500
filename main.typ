@@ -10,7 +10,6 @@
       email: "lmtrinidadsalvador@gmail.com",
     ),
   ),
-
   titulo: [TOP 13: Isambard-AI phase 2],
   resumen: [*_Abstract_ --- El presente proyecto toma como fin la descripción a distintos niveles del clúster Isambard-AI phase 2. Se aborda de forma jerárquica *],
   unidad-academica: image("figures/logo_usc.svg", width: 60pt),
@@ -30,6 +29,9 @@
 #include "sections/02_facility.typ"
 #include "sections/03_topology.typ"
 #include "sections/04_chip.typ"
+
+/* en algun lado tengo que meter esto */
+= Storage
 
 = Empirical Performance & Benchmarks
 
