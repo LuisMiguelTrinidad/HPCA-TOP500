@@ -11,7 +11,10 @@
     ),
   ),
   titulo: [TOP 13: Isambard-AI phase 2],
-  resumen: [*_Abstract_ --- El presente proyecto toma como fin la descripción a distintos niveles del clúster Isambard-AI phase 2. Se aborda de forma jerárquica *],
+  resumen: [
+  *_Abstract_ --- El presente proyecto toma como fin la descripción a distintos niveles del clúster Isambard-AI phase 2.
+  Se aborda de forma jerárquica, desde la infraestructura física hasta la microarquitectura de los nodos, y se valida con benchmarks y con un análisis teórico-cuantitativo. *
+  ],
   unidad-academica: image("figures/logo_usc.svg", width: 60pt),
   institucion: image("figures/logo_udc.png", width: 60pt),
 )
@@ -30,31 +33,19 @@
 #include "sections/03_topology.typ"
 #include "sections/04_chip.typ"
 
-/* en algun lado tengo que meter esto */
-= Storage
-
-= Empirical Performance & Benchmarks
-
-= Theoretical Correlations & Quantitative Analysis
-
-// // Sección de apéndices. Si no se usa, se puede comentar o borrar
-// #show: apendice
-
-// = Apéndice
-// Si corresponde, utilice uno o más apéndices para complementar la información del trabajo.
 
 #bibliography("bibliografia.bib", title: "Bibliography")
 
 /*
-HECHO
+1/1
 	- A short description of the system
-EN ELLO
+1/1
 	- A enumeration of the characteristics of the different memory hierarchies in the sytem (CPU and or GPUs): number of caches levels and characteristics of each one.
-EN ELLO
+5/6
 	- A description of the relevant features of each processor, such as: number of cores, vector instructions family supported, characteristics of the pipeline, the architecture that implements the processor (Nehalem, Skylake,...), the support of multiple issue, the reported performance of the processor executing different benchmarks (such as SPEC CPU and others)
-SER MAS EXPLICITO CON ESTO
+No se / No se
 	- Types of parallelism exploited by the different components of the system, according to Flynn's taxonomy.
-BUSCAR ALGO SOBRE LA COMUNICACION ENTRE NUCLEOS...
+No se/ No se
 	- Characteristics of the supported multithreading
 REVISAR AL FINAL PARA VER QUE FALTA
 	- Anyother correlation found between the theoretical concepts introduction in chapters 1 and 2 and the characteristics of the processor will be welcomed.
