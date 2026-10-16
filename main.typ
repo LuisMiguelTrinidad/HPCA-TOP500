@@ -12,8 +12,8 @@
   ),
   titulo: [TOP 13: Isambard-AI phase 2],
   resumen: [
-  *_Abstract_ --- El presente proyecto toma como fin la descripción a distintos niveles del clúster Isambard-AI phase 2.
-  Se aborda de forma jerárquica, desde la infraestructura física hasta la microarquitectura de los nodos, y se valida con benchmarks y con un análisis teórico-cuantitativo. *
+  *_Abstract_ --- This project aims to describe the Isambard-AI phase 2 cluster at several levels.
+  It takes a hierarchical approach, from the physical infrastructure down to the microarchitecture of the nodes, and validates it with benchmarks and a theoretical analysis.*
   ],
   unidad-academica: image("figures/logo_usc.svg", width: 60pt),
   institucion: image("figures/logo_udc.png", width: 60pt),
@@ -35,19 +35,3 @@
 
 
 #bibliography("bibliografia.bib", title: "Bibliography")
-
-/*
-1/1
-	- A short description of the system
-1/1
-	- A enumeration of the characteristics of the different memory hierarchies in the sytem (CPU and or GPUs): number of caches levels and characteristics of each one.
-5/6
-	- A description of the relevant features of each processor, such as: number of cores, vector instructions family supported, characteristics of the pipeline, the architecture that implements the processor (Nehalem, Skylake,...), the support of multiple issue, the reported performance of the processor executing different benchmarks (such as SPEC CPU and others)
-No se / No se
-	- Types of parallelism exploited by the different components of the system, according to Flynn's taxonomy.
-No se/ No se
-	- Characteristics of the supported multithreading
-REVISAR AL FINAL PARA VER QUE FALTA
-	- Anyother correlation found between the theoretical concepts introduction in chapters 1 and 2 and the characteristics of the processor will be welcomed.
-
- */

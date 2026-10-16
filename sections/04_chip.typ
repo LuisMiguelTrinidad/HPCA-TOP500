@@ -1,51 +1,52 @@
 = Node microarchitecture <sec-chip>
-Cada nodo del clúster Isambard-AI phase 2 congrega múltiples superchips NVIDIA GH200, integrando cada uno de estos su propio procesador Grace y su GPU H100, que se comunican mediante NVLink-C2C (Chip to Chip).
-Se describen a lo largo de esta sección las principales características de los mismos.
+Each node of the Isambard-AI phase 2 cluster brings together multiple NVIDIA GH200 superchips, each of which integrates its own Grace processor and H100 GPU, communicating via NVLink-C2C (Chip to Chip).
+The main characteristics of these components are described throughout this section.
 
 == Node composition
-A nivel macro, cada nodo cuenta con $4$ superchips GH200, que suman $288$ núcleos ARM, $67584$ núcleos CUDA, $512$ GB de memoria LPDDR5X y $384$ GB de memoria HBM3, distribuidos de forma equitativa entre los superchips @bristol_isambard_2025.
-La fuerte integración permite que cada CPU o GPU acceda a cualquier dirección de memoria RAM o VRAM de cualquier otro chip @nvidia_gh200_2024.
+At the macro level, each node has $4$ GH200 superchips, which add up to $288$ ARM cores, $67584$ CUDA cores, $512$ GB of LPDDR5X memory and $384$ GB of HBM3 memory, distributed equally among the superchips @bristol_isambard_2025.
+The tight integration allows each CPU or GPU to access any RAM or VRAM address of any other chip @nvidia_gh200_2024.
 
 #figure(
   image("../figures/diagrama_blade.pdf", width: 100%),
-  caption: [Esquema de un nodo de Isambard-AI phase 2: cuatro superchips GH200, cada uno con su CPU Grace, su GPU H100, sus memorias LPDDR5X y HBM3, su tarjeta de red Slingshot-11 y los enlaces NVLink-C2C intra-superchip. Diagrama de referencia basado en @desensi2024.],
+  caption: [Diagram of an Isambard-AI phase 2 node: four GH200 superchips, each with its Grace CPU, H100 GPU, LPDDR5X and HBM3 memories, its Slingshot-11 network card and the intra-superchip NVLink-C2C links. Reference diagram based on @desensi2024.],
   kind: "Image",
 	supplement: "Figure"
 ) <fig-node>
 
-A nivel de interconexión intra-nodo, las GPU están interconectadas en un enmallado _all-to-all_ basado en la tecnología NVLink 4.0, con 6 enlaces por conexión, lo que ofrece un ancho de banda de $150$ GB/s por dirección @desensi2024.
-Por su parte, la comunicación CPU-GPU dentro de un mismo superchip se realiza mediante NVLink-C2C, ofreciendo un total de $450$ GB/s por dirección @nvidia_gh200_2024, superando ampliamente los 64GB/s por dirección que ofrece PCIe 5.0, lo que reduce la intensidad aritmética mínima necesaria para que la ejecución en GPU sea rentable frente a la CPU.
+At the intra-node interconnect level, the GPUs are connected in an all-to-all mesh based on NVLink 4.0 technology, with 6 links per connection, offering a bandwidth of $150$ GB/s per direction @desensi2024.
+For its part, CPU-GPU communication within the same superchip is carried out via NVLink-C2C, offering a total of $450$ GB/s per direction @nvidia_gh200_2024, far surpassing the 64 GB/s per direction offered by PCIe 5.0.
+This reduces the minimum arithmetic intensity required for GPU execution to be worthwhile compared with the CPU.
 
-En materia de latencia, según el análisis de Fusco et al. @fusco2024, esta arquitectura NUMA de memoria unificada presenta un comportamiento asimétrico según la ubicación de los datos.
+Regarding latency, according to the analysis by Fusco et al. @fusco2024, this unified-memory NUMA architecture shows asymmetric behavior depending on where the data resides.
 
-La CPU Grace accede a su memoria local LPDDR5X con una latencia de $170.0$ ns, mientras que acceder a la HBM3 de su GPU emparejada a través de C2C eleva el coste a $798.8$ ns.
-Por su parte, la GPU Hopper accede a su HBM3 local en $344.2$ ns y necesita $817.8$ ns para acceder a la LPDDR5X de la CPU a través del enlace C2C.
+The Grace CPU accesses its local LPDDR5X memory with a latency of $170.0$ ns, while accessing the HBM3 of its paired GPU through C2C raises the cost to $798.8$ ns.
+The Hopper GPU accesses its local HBM3 in $344.2$ ns and needs $817.8$ ns to access the CPU's LPDDR5X through the C2C link.
 
-Las comunicaciones _peer-to-peer_ entre superchips reflejan el overhead del enrutamiento: una GPU que accede a la HBM de otra GPU incurre en una latencia de $1022.9$ ns, mientras que una CPU que accede a la LPDDR5X de otra CPU espera $520$ ns.
+Peer-to-peer communications between superchips reflect routing overhead: a GPU accessing the HBM of another GPU incurs a latency of $1022.9$ ns, while a CPU accessing the LPDDR5X of another CPU waits $520$ ns.
 
 == The CPU
 #figure(
   image("../figures/neoverse_v2.drawio-1.jpg"),
-  caption: [Pipeline microarquitectónico de un procesador basado en la especificación Neoverse V2 @bruce2023. No se corresponde de forma estricta con el procesador descrito en esta sección.],
+  caption: [Microarchitectural pipeline of a processor based on the Neoverse V2 specification @bruce2023. It does not strictly correspond to the processor described in this section.],
   placement: top,
   scope: "parent",
   kind: "Image",
   supplement: "Figure"
 ) <fig-neoverse_diagram>
 
-El procesador Grace es una CPU de $72$ núcleos con frecuencias de hasta $3.1$ GHz, basada en la microarquitectura ARM Neoverse V2 (ARMv9-A), que fue presentada en la conferencia Hot Chips de 2023 @bruce2023.
-Se trata de un núcleo superescalar, con gran capacidad de explotar paralelismo a nivel de instrucciones (ILP) gracias a la ejecución fuera de orden y su ancho de 8 $mu$ops por ciclo.
-Sin embargo, no implementa multihilo simultáneo (SMT), por lo que cada núcleo ejecuta un único hilo físico.
-De acuerdo con la taxonomía de Flynn se trata de un sistema MIMD, cuyos núcleos pueden ejecutar instrucciones SIMD.
+The Grace processor is a 72-core CPU with frequencies of up to $3.1$ GHz, based on the ARM Neoverse V2 microarchitecture (ARMv9-A), which was presented at the Hot Chips 2023 conference @bruce2023.
+It is a superscalar core, with great capacity to exploit instruction-level parallelism (ILP) thanks to out-of-order execution and its width of 8 $mu$ops per cycle.
+However, it does not implement simultaneous multithreading (SMT), so each core executes a single physical thread.
+According to Flynn's taxonomy, it is a MIMD system whose cores can execute SIMD and SISD instructions.
 
-Como se observa en la @fig-neoverse_diagram, el frontend del procesador puede decodificar hasta 6 instrucciones por ciclo, así como despachar 8 apoyándose en una caché de $mu$ops de $1536$ entradas, asociativa a 4 vías.
-Cuenta además con un predictor de saltos TAGE @seznec2006.
+As seen in @fig-neoverse_diagram, the processor's frontend can decode up to 6 instructions per cycle, as well as dispatch 8, relying on a $mu$op cache of $1536$ entries, 4-way set associative.
+It also has a TAGE branch predictor @seznec2006.
 
-El _backend_ dispone de $6$ unidades escalares enteras (ALU), de las cuales dos realizan operaciones `mul` y una de ellas también `fma`.
-Cuenta asimismo con $2$ unidades de salto, $4$ puertos FP/SIMD de $128$ bits, y $3$ unidades de generación de direcciones (AGU).
-Dos de las AGU atienden cargas y almacenamientos, mientras que la tercera solo cargas, lo que teóricamente permite hasta $3$ operaciones de memoria de $16$ bytes por ciclo.
+The backend has $6$ scalar integer units (ALU), two of which perform `mul` operations and one of which also performs `fma`.
+It also has $2$ branch units, $4$ 128-bit FP/SIMD ports, and $3$ address generation units (AGU).
+Two of the AGUs handle loads and stores, while the third handles only loads, which theoretically allows up to $3$ memory operations of $16$ bytes per cycle.
 
-Por su parte, la memoria en este procesador sigue la siguiente jerarquía de memorias:
+Memory in this processor follows the hierarchy shown below:
 
 #figure(
   align(center)[
@@ -62,39 +63,39 @@ Por su parte, la memoria en este procesador sigue la siguiente jerarquía de mem
       ),
       table.hline(stroke: 0.5pt),
 
-      [Registros], 	[No publicado], 	[---], 			[---], 	[---],
-      [L1d], 				[$64$ KB/nucleo], [$4$ vías], [$48$], [$144$ GB/s/c],
-      [L2], 				[$1$ MB/nucleo], 	[$8$ vías], [$64$], [$192$ GB/s/c],
-      [L3], 				[$114$ MB], 			[---], 			[---], 	[>2TB/s @chipsandcheese_gh200],
+      [Registers], 	[Not published], 	[---], 			[---], 	[---],
+      [L1d], 				[$64$ KB/core], [$4$-way], [$48$], [$144$ GB/s/core],
+      [L2], 				[$1$ MB/core], 	[$8$-way], [$64$], [$192$ GB/s/core],
+      [L3], 				[$114$ MB], 			[---], 			[---], 	[>2 TB/s @chipsandcheese_gh200],
       [LPDDR5X], 		[$128$ GB], 			[---], 			[---], 	[$512$ GB/s],
       table.hline(stroke: 1pt),
     )
   ],
-  caption: [Jerarquía de memoria del procesador Grace (CPU) del superchip GH200.],
+  caption: [Memory hierarchy of the Grace (CPU) processor of the GH200 superchip.],
   supplement: "Table",
   kind: "Table",
 ) <tab-mem>
 
-La comunicación entre hilos, explotada en el paralelismo a nivel de hilo (TLP), se realiza a través de una malla de coherencia basada en una grid $6 times 7$, representada en la @fig-grace. Con distancia Manhattan, el número máximo de saltos entre nodos es $6+7 = 13$.
+Communication between threads, exploited through thread-level parallelism (TLP), is carried out through a coherency mesh based on a $6 times 7$ grid, shown in @fig-grace. With Manhattan distance, the maximum number of hops between nodes is $6+7 = 13$.
 
 #figure(
   image("../figures/grace_cpu_and_scalable_coherency_fabric.png", width: 100%),
-  caption: [Diagrama de bloques del procesador Grace (CPU) del GH200: 72 núcleos Neoverse V2 y 114 MB de caché L3 distribuida sobre la malla de coherencia @nvidia_grace_cpu.],
+  caption: [Block diagram of the Grace (CPU) processor of the GH200: 72 Neoverse V2 cores and 114 MB of distributed L3 cache over the coherency mesh @nvidia_grace_cpu.],
   kind: "Image",
   supplement: "Figure"
 ) <fig-grace>
 
-El procesador de 72 núcleos opera a 3.0 GHz utilizando 4 pipelines SIMD de 128 bits por núcleo, pertenecientes a la familia ARMv9 (SVE2/NEON). Se desglosan sus capacidades computacionales.
+The 72-core processor operates at 3.0 GHz using 4 128-bit SIMD pipelines per core, belonging to the ARMv9-A family (SVE2/NEON). Its computational capabilities are broken down below.
 
-	- *`fp64`:* Cada pipeline incluye 2 carriles realizando una `FMA` (2 operaciones). Esto genera 16 FLOP/ciclo por núcleo. El pico total es $72 times 16 times 3.0 "GHz" = 3.456$ TFLOPS.
-	- *`fp32`:* Cada pipeline incluye 4 carriles realizando una `FMA` (2 operaciones). Esto genera 32 FLOP/ciclo por núcleo. El pico total es $72 times 32 times 3.0 "GHz" = 6.912$ TFLOPS.
-	- *`bf16`:* La instrucción `BFDOT` acumula 2 productos por carril de 32 bits, lo que equivale a 8 `mac` (16 FLOP) por instrucción. Esto resulta en 64 FLOP/ciclo por núcleo. El pico total es $72 times 64 times 3.0 "GHz" approx 13.8$ TFLOPS.
-	- *`int8`:* La instrucción `SDOT` acumula 4 productos por carril de 32 bits, resultando en 16 `mac` (32 operaciones) por instrucción sobre registros de 128 bits. Esto da 128 OPS/ciclo por núcleo. El pico total es $72 times 128 times 3.0 "GHz" approx 27.6$ TOPS.
+- *`fp64`:* Each pipeline includes 2 lanes performing one `FMA` (2 operations). This yields 16 FLOP/cycle per core. The total peak is $72 times 16 times 3.0 "GHz" = 3.456$ TFLOPS.
+- *`fp32`:* Each pipeline includes 4 lanes performing one `FMA` (2 operations). This yields 32 FLOP/cycle per core. The total peak is $72 times 32 times 3.0 "GHz" = 6.912$ TFLOPS.
+- *`bf16`:* The `BFDOT` instruction accumulates 2 products per 32-bit lane, equivalent to 8 `mac` (16 FLOP) per instruction. This results in 64 FLOP/cycle per core. The total peak is $72 times 64 times 3.0 "GHz" approx 13.8$ TFLOPS.
+- *`int8`:* The `SDOT` instruction accumulates 4 products per 32-bit lane, equivalent to 16 `mac` (32 operations) per instruction. This results in 128 OPS/cycle per core. The total peak is $72 times 128 times 3.0 "GHz" approx 27.6$ TOPS.
 
 == The GPU
-Cada superchip incorpora una GPU H100 con $132$ multiprocesadores (SM) habilitados, de un total de $144$ en el die @chipsandcheese_gh200.
-De acuerdo con la taxonomía de Flynn, la GPU, al contar con distintos SMs, se comporta de forma general de acuerdo al modelo SIMD, mientras que dentro de cada SM, se trata de un caso degenerado de SIMD, SIMT.
-Se describe a continuación la misma en dos partes: primero la jerarquía de memoria y después sus capacidades computacionales.
+Each superchip incorporates an H100 GPU with $132$ enabled streaming multiprocessors (SM), out of a total of $144$ on the die @chipsandcheese_gh200.
+According to Flynn's taxonomy, the GPU, since it has several SMs, generally behaves as a MIMD model, while within each SM it is a degenerate case of SIMD, namely SIMT.
+Bewlo, a description in two parts is provided: first the memory hierarchy, then its computational capabilities.
 
 === Memory hierachy
 #figure(
@@ -111,50 +112,49 @@ Se describe a continuación la misma en dos partes: primero la jerarquía de mem
         align([*Type*], center), align([*Size*], center), align([*Bytes/cycle*], center), align([*Bandwidth*], center), align([*Latency*], center),
       ),
       table.hline(stroke: 0.5pt),
-      [Registros],	[$256$ KB/SM], 			[---], 	[---], 	[$1$c],
-      [L1], 				[$256$ KB/SM], 			[$128$/SM], 	[$approx 33$ TB/s], 	[$approx 23$--$41$c],
-      [L2], 				[$2 times 25$ MB],	[---], [$approx 5.5$ TB/s], 	[$approx 200$--$263$c],
-      [HBM3], 			[$96$ GB], 					[---], 				[$approx 4$ TB/s],	 	[$approx 290$--$480$c],
+      [Registers],	[$256$ KB/SM], 			[---], 	[---], 	[$1$ cycle],
+      [L1], 				[$256$ KB/SM], 			[$128$/SM], 	[$approx 33$ TB/s], 	[$approx 23$--$41$ cycles],
+      [L2], 				[$2 times 25$ MB],	[---], [$approx 5.5$ TB/s], 	[$approx 200$--$263$ cycles],
+      [HBM3], 			[$96$ GB], 					[---], 				[$approx 4$ TB/s],	 	[$approx 290$--$480$ cycles],
       table.hline(stroke: 1pt),
     )
   ],
-  caption: [Jerarquía de memoria de la GPU H100 (Hopper) del superchip GH200. Datos de latencias de @spheron_hierarchy],
+  caption: [Memory hierarchy of the H100 (Hopper) GPU of the GH200 superchip. Latency data from @spheron_hierarchy],
   supplement: "Table",
   kind: "Table",
 ) <tab-gpu-mem>
 
-Los registros del SM ocupan $256$ KB, repartidos entre los warps residentes: cada hilo puede usar hasta $255$ registros de 32 bits (unos $1$ KB), lo que supone hasta $32$ KB por warp de 32 hilos @choquette2022.
+The SM registers occupy $256$ KB, shared among the resident warps: each thread can use up to $255$ 32-bit registers (about $1$ KB), which amounts to up to $32$ KB per warp of 32 threads @choquette2022.
 
-La L1 cuenta con $256$ KB por SM, ofreciendo un ancho de banda de $128$ B/ciclo por SM @hopper_tuning, lo que le permite alcanzar unos $33$ TB/s agregados sobre los $132$ SM.
+The L1 has $256$ KB per SM, offering a bandwidth of $128$ B/cycle per SM @hopper_tuning, which allows it to reach about $33$ TB/s aggregated over the $132$ SMs.
 
-La caché L2 de $50$ MB es compartida por todos los SM y se divide en dos particiones de $25$ MB.
-Los accesos a la partición lejana cuestan aproximadamente el doble que a la cercana.
-Chips and Cheese midió @chipsandcheese_gh200 más de $5.5$ TB/s de lectura en la partición cercana, pero sobre una H100 PCIe con $114$ SM, así que para la variante SXM es una estimación.
+The $50$ MB L2 cache is shared by all SMs and is divided into two partitions of $25$ MB each.
+Accesses to the far partition cost roughly twice as much as accesses to the near one.
+Chips and Cheese measured @chipsandcheese_gh200 more than $5.5$ TB/s of read bandwidth on the near partition, but on an H100 PCIe with $114$ SMs, so for the SXM variant this is an estimate.
 
 La HBM3 del GH200 ofrece $96$ GB y $4$ TB/s, a través de un bus de $6144$ bits.
 
-Por último, los clústeres de bloques de Hopper permiten co-planificar hasta $16$ bloques en SM adyacentes.
-Un bloque puede acceder a la memoria compartida de otro a través de una red SM a SM @choquette2022, lo que según NVIDIA reduce la latencia de intercambio unas $7$ veces.
+Finally, Hopper's thread block clusters allow co-scheduling up to $16$ blocks on adjacent SMs.
+A block can access the shared memory of another through an SM-to-SM network @choquette2022, which according to NVIDIA reduces exchange latency by about $7$ times.
 
-=== Cómputo por SM
-Cada SM contiene $128$ núcleos FP32, $64$ núcleos FP64 y $4$ núcleos tensoriales de cuarta generación.
-La @fig-sm muestra la organización de un SM de la GPU H100.
+=== Compute per SM
+Each SM contains $128$ `fp32` cores, $64$ `fp64` cores and $4$ fourth-generation tensor cores.
+@fig-sm shows the organization of an SM of the H100 GPU.
 
 #figure(
   image("../figures/h100_sm.svg"),
-  caption: [Diagrama del SM de la arquitectura Hopper (H100). Extraído de @modal_tensor_core],
+  caption: [Diagram of the SM of the Hopper (H100) architecture. Taken from @modal_tensor_core],
   kind: "Image",
   supplement: "Figure"
 ) <fig-sm>
 
-El cómputo de cada SM depende del tipo de dato.
-En los núcleos CUDA, cada núcleo FP32 ejecuta una FMA por ciclo, lo que da $128$ FMA, o $256$ FLOP, por SM y ciclo.
-En FP64, los núcleos CUDA realizan $64$ FMA por ciclo, es decir, $128$ FLOP.
+The compute of each SM depends on the data type.
+In the CUDA cores, each `fp32` core executes one `fma` per cycle, which gives $128$ `fma`, or $256$ FLOP, per SM and cycle.
+In `fp64`, the CUDA cores perform $64$ FMA per cycle, that is, $128$ FLOP.
 
-Los núcleos tensoriales son los que más destacan en formatos de menor precisión.
-La @tab-compute resume estos valores junto con la intensidad aritmética, que se estudia en la tabla final.
+The tensor cores are the ones that stand out most in lower-precision formats.
+@tab-compute summarizes these values together with the arithmetic intensity, which is studied in the final table.
 
-=== Tabla resumen
 #figure(
   align(center)[
     #set text(size: 7pt)
@@ -166,33 +166,33 @@ La @tab-compute resume estos valores junto con la intensidad aritmética, que se
 
       table.hline(stroke: 1pt),
       table.header(
-        [*Type*], [*Unidad*],[*FLOP/c/SM*], [*TFLOPS*], [*IA/L1*], [*IA/HBM3*],
+        [*Type*], [*Unit*],[*FLOP/c/SM*], [*TFLOPS*], [*AI/L1*], [*AI/HBM3*],
       ),
       table.hline(stroke: 0.5pt),
       [`fp64`],        [CUDA],      [$128$],  [$approx 34$],   [$1$],  [$approx 8.5$],
       [`fp32`],        [CUDA],      [$256$],  [$approx 67$],   [$1$],  [$approx 16.75$],
-      [`fp64`],        [Tensorial], [$256$],  [$approx 67$],   [$2$],  [$approx 16.75$],
-      [`tf32`],        [Tensorial], [$2048$], [$approx 494$],  [$16$], [$approx 123.5$],
-      [`FP16/BF16`],   [Tensorial], [$4096$], [$approx 990$],  [$32$], [$approx 247.5$],
-      [`FP8/INT8`],    [Tensorial], [$8192$], [$approx 1979$], [$64$], [$approx 494.75$],
+      [`fp64`],        [Tensor], [$256$],  [$approx 67$],   [$2$],  [$approx 16.75$],
+      [`tf32`],        [Tensor], [$2048$], [$approx 494$],  [$16$], [$approx 123.5$],
+      [`FP16/BF16`],   [Tensor], [$4096$], [$approx 990$],  [$32$], [$approx 247.5$],
+      [`FP8/INT8`],    [Tensor], [$8192$], [$approx 1979$], [$64$], [$approx 494.75$],
       table.hline(stroke: 1pt),
     )
   ],
-  caption: [Operaciones por ciclo y por SM, pico del sistema de $132$ SM e intensidad aritmética mínima para compute-bound.],
+  caption: [Operations per cycle and per SM, peak of the 132-SM system, and minimum arithmetic intensity for compute-bound workloads.],
   supplement: "Table",
   kind: "Table",
 ) <tab-compute>
 
-Las intensidades explican dónde está el cuello de botella.
-Un kernel FP64 CUDA ya necesita unos $8.5$ FLOP por byte de HBM3 para saturar el cómputo, mientras que el FP16 tensorial necesita unos $247$.
-Las cargas de entrenamiento de modelos de lenguaje reutilizan mucho cada dato y pueden alcanzar esa intensidad, pero los kernels de baja intensidad quedan limitados por la memoria.
+The intensities explain where the bottleneck lies.
+A CUDA `fp64` kernel already needs about $8.5$ FLOP per byte of HBM3 to saturate the compute, while tensor FP16 needs about $247$.
+Language model training workloads reuse each value heavily and can reach that intensity, but low-intensity kernels remain limited by memory.
 
 == Benchmarking
-Los resultados se dividen en dos bloques: la CPU Grace, medida por Phoronix @phoronix_gh200, y la GPU H100, para la que solo hay datos de fabricante y de terceros con configuraciones distintas.
+The results are divided into two blocks: the Grace CPU, measured by Phoronix @phoronix_gh200, and the H100 GPU, for which there is only manufacturer data and third-party data with different configurations.
 
 === CPU Grace
-Phoronix compara los 72 núcleos del GH200 con el AMD EPYC 9654 y el Intel Xeon 8592+, bajo Ubuntu 23.10, Linux 6.5 y GCC 13.
-El equipo probado es un escritorio de GPTshop.ai con 480 GB de LPDDR5X, no el clúster Isambard-AI: como comparten la CPU, los resultados caracterizan el procesador y no el sistema completo.
+Phoronix compares the 72 cores of the GH200 with the AMD EPYC 9654 and the Intel Xeon 8592+, under Ubuntu 23.10, Linux 6.5 and GCC 13.
+The tested system is a GPTshop.ai desktop with 480 GB of LPDDR5X, not the Isambard-AI cluster: since they share the CPU, the results characterize the processor and not the complete system.
 
 #figure(
   align(center)[
@@ -205,28 +205,27 @@ El equipo probado es un escritorio de GPTshop.ai con 480 GB de LPDDR5X, no el cl
 
       table.hline(stroke: 1pt),
       table.header(
-        [*Benchmark*], [*Carga*], [*Grace (GH200)*], [*EPYC 9654*], [*Xeon 8592+*],
+        [*Benchmark*], [*Workload*], [*Grace (GH200)*], [*EPYC 9654*], [*Xeon 8592+*],
       ),
       table.hline(stroke: 0.5pt),
-      [HPCG (GFLOP/s)], [limitada por memoria], [32.13], [43.97], [35.42],
-      [Graph500 (TEPS)], [acceso irregular], [$1.24 times 10^9$], [$0.816 times 10^9$], [$1.199 times 10^9$],
-      [LULESH z/s], [hidrodinámica], [23185], [23701], [72625],
+      [HPCG (GFLOP/s)], [memory-bound], [32.13], [43.97], [35.42],
+      [Graph500 (TEPS)], [irregular access], [$1.24 times 10^9$], [$0.816 times 10^9$], [$1.199 times 10^9$],
+      [LULESH z/s], [hydrodynamics], [23185], [23701], [39468],
       table.hline(stroke: 1pt),
     )
   ],
-  caption: [Resultados de benchmarks de la CPU Grace frente a procesadores de referencia @phoronix_gh200],
+  caption: [Benchmark results of the Grace CPU against reference processors @phoronix_gh200],
   supplement: "Table",
   kind: "Table",
 ) <tab-phoronix>
 
-En HPCG, la Grace obtiene un 27 % menos que el EPYC 9654, pese a su ancho de banda pico de 512 GB/s.
-En Graph500, con accesos irregulares, supera a ambos procesadores x86.
-En LULESH queda a la par del EPYC, mientras que el Xeon triplica ese resultado.
-El ancho de banda pico, por tanto, no basta para predecir el rendimiento.
+In HPCG, Grace obtains 27% less than the EPYC 9654, despite its peak bandwidth of 512 GB/s.
+In Graph500, with irregular accesses, it outperforms both x86 processors.
+In LULESH it is on par with the EPYC, while the Xeon archiecves almost 1.7x that result.
 
 === GPU H100
-Para la GPU, NVIDIA publica una comparativa de la variante GH200 de 144 GB frente a una referencia x86 y a un sistema x86 con H100 @nvidia_gh200_perf.
-La gráfica no detalla la configuración de referencia, así que son cifras de fabricante.
+For the GPU, NVIDIA publishes a comparison of the 144 GB GH200 variant against an x86 reference and an x86 system with H100 @nvidia_gh200_perf.
+The chart does not detail the reference configuration, so these are manufacturer figures.
 
 #figure(
   align(center)[
@@ -239,25 +238,25 @@ La gráfica no detalla la configuración de referencia, así que son cifras de f
 
       table.hline(stroke: 1pt),
       table.header(
-        [*Carga*], [*Tipo*], [*x86 + H100*], [*GH200 (144 GB)*],
+        [*Workload*], [*Type*], [*x86 + H100*], [*GH200 (144 GB)*],
       ),
       table.hline(stroke: 0.5pt),
       [ICON], [HPC], [6×], [8×],
       [MILC], [HPC], [27×], [41×],
       [Quantum Fourier Transform], [HPC], [61×], [94×],
-      [DLRM inferencia (100 GB)], [IA], [9×], [18×],
-      [Búsqueda vectorial IVF-PQ], [IA], [25×], [33×],
-      [GNN training (500 GB)], [IA], [5×], [40×],
+      [DLRM inference (100 GB)], [AI], [9×], [18×],
+      [IVF-PQ vector search], [AI], [25×], [33×],
+      [GNN training (500 GB)], [AI], [5×], [40×],
       table.hline(stroke: 1pt),
     )
   ],
-  caption: [Aceleración frente a una referencia x86 (1.0×), según NVIDIA @nvidia_gh200_perf],
+  caption: [Speedup relative to an x86 reference (1.0×), according to NVIDIA @nvidia_gh200_perf],
   supplement: "Table",
   kind: "Table",
 ) <tab-gh200-nvidia>
 
-Como contraste independiente, Databricks midió en nodos de 8 H100 SXM de 80 GB frente a A100 80 GB @databricks_h100.
-El entrenamiento en BF16 es 2.2× más rápido, y con FP8 llega hasta 3.3×.
-Las multiplicaciones de matrices alcanzan cerca de 5× frente a un máximo teórico de 6.3×, mientras que las operaciones limitadas por memoria mejoran como mucho 1.6×, en línea con la ventaja de ancho de banda de H100 sobre A100.
+As an independent contrast, Databricks measured on nodes of 8 H100 SXM 80 GB against A100 80 GB @databricks_h100.
+BF16 training is 2.2× faster, and with FP8 it reaches up to 3.3×.
+Matrix multiplications reach close to 5× against a theoretical maximum of 6.3×, while memory-bound operations improve by at most 1.6×, in line with the bandwidth advantage of the H100 over the A100.
 
-Estas cifras son de la GPU en otra configuración y de otra generación de software, así que sirven como referencia del comportamiento de la GPU, no como medida del GH200 del clúster.
+These figures correspond to the GPU in another configuration and from another software generation, so they serve as a reference for the GPU's behavior, not as a measurement of the GH200 in the cluster.

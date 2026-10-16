@@ -1,56 +1,57 @@
 = Rack, Interconnection & Storage <sec-topology>
-La arquitectura a nivel de rack e interconexión está diseñada de forma jerárquica para maximizar la densidad de cómputo y minimizar la latencia, respondiendo a las exigencias operacionales de las cargas de trabajo de inteligencia artificial contemporáneas.
+The rack-level and interconnection architecture is designed hierarchically to maximize compute density and minimize latency, responding to the operational demands of contemporary artificial intelligence workloads.
 
-A nivel de bastidor, cada uno de los $12$ HPE Cray EX4000 @mcintosh2025 disponibles contiene un total de $110$ nodos computacionales, lo que proporciona un total de $440$ superchips NVIDIA GH200 por armario.
+At the rack level, each of the $12$ HPE Cray EX4000 @mcintosh2025 cabinets available contains a total of $110$ compute nodes, which provides a total of $440$ NVIDIA GH200 superchips per cabinet.
 
-Dentro de cada rack, la unidad básica es el _blade_ acelerador HPE Cray EX254n.
-Esta placa aloja dos nodos computacionales independientes, cada uno de los cuales cuenta con $4$ procesadores NVIDIA Grace de $72$ núcleos (arquitectura ARM Neoverse V2), así como $4$ GPU NVIDIA H100 (arquitectura Hopper).
-Consecuentemente, cada nodo dispone de 288 núcleos ARM v9 y 4 GPU H100.
+Within each rack, the basic unit is the HPE Cray EX254n _blade_ accelerator.
+It houses two independent compute nodes, each of which has $4$ NVIDIA Grace processors of $72$ cores (ARM Neoverse V2 architecture), as well as $4$ NVIDIA H100 GPUs (Hopper architecture).
+Consequently, each node has 288 ARM v9 cores and 4 H100 GPUs.
 
 #figure(
 	image("../figures/borrar_y_mejorar_resolucion.png"),
-	caption: [Chasis blade HPE Cray EX254n],
+	caption: [HPE Cray EX254n blade chassis],
 	kind: "Image",
 	supplement: "Figure"
 )
 
-A nivel de interconexión del cluster, la orquestración de la red se delega en la arquitectura HPE Slingshot 11 @hpe_slingshot_2026.
-El sistema HPE Cray EX utiliza un acoplamiento ortogonal sin cables @hpe_cray_ex_quickspecs: los chasis de cómputo se insertan por la parte frontal del chasis, mientras que los chasis de conmutación (switches) se insertan por la parte trasera, intersectando en un midplane.
-Este diseño cumple fundamentalmente con $3$ objetivos:
+At the cluster interconnect level, network orchestration is delegated to the HPE Slingshot 11 architecture @hpe_slingshot_2026
+The HPE Cray EX system uses an orthogonal cableless coupling @hpe_cray_ex_quickspecs: compute blades are inserted from the front of the chassis, while switch blades are inserted from the rear, intersecting at a midplane.
+This design fundamentally serves $3$ goals:
 
-- *Mejorar la integridad de señal:* permitiendo mayor ancho de banda.
-- *Minimizar las latencias de interconexión:* el reducido trazado permite minimizar los retrasos en tiempo de propagación.
-- *Minimizar el gasto energético:* reduciendo la cantidad de energía necesaria por byte transmitido.
+- *Improve signal integrity:* allowing greater bandwidth.
+- *Minimize interconnect latencies:* the short trace layout minimizes propagation delays.
+- *Minimize energy expenditure:* reducing the amount of energy needed per transmitted byte.
 
-Cada nodo hace uso de $4$ tarjetas de red, ofreciendo un ancho de banda total de $800$ Gb/s de entrada y salida simultánea @bristol_isambard_2025 por nodo hacia la red principal.
-Para la interconexión entre nodos se hace uso de switches de 64 puertos, que ofrecen un total de $25.6$ Tb/s.
+Each node uses $4$ network cards, offering a total bandwidth of $800$ Gb/s of simultaneous input and output @bristol_isambard_2025 per node toward the main network.
+For inter-node connections, 64-port switches are used, offering a total of $25.6$ Tb/s.
 
-A nivel macroscópico, la topología de red empleada es de tipo _Dragonfly_ @kim2008.
-Este diseño toma como base enmallados all-to-all de pequeños grupos de nodos, que se interconectan posteriormente entre sí, esto permite garantizar un diámetro de 3 saltos @hpe_slingshot_2026 para $lt.eq 37120$ endpoints.
+At the macroscopic level, the network topology used is of the _Dragonfly_ type @kim2008.
+This design is based on all-to-all meshes of small groups of nodes, which are subsequently interconnected with each other; this makes it possible to guarantee a diameter of 3 hops @hpe_slingshot_2026 for $lt.eq 37120$ endpoints.
 
 #figure(
 	image("../figures/dragonfly.pdf"),
-	caption: [Ejemplo de topología dragonfly],
+	caption: [Example of a dragonfly topology],
 	kind: "Image",
 	supplement: "Figure"
 )
 
-Aunque se desconoce la implementación exacta de esta topología en el clúster Isambard-AI phase 2, es posible inferir, usando como referencia otros sistemas, como el sistema _Alps_, perteneciente al _Swiss National Supercomputing Centre_ @desensi2024. Una posible implementación de esta arquitectura para cada switch se ofrece en la figura @fig-switches.
+Although the exact implementation of this topology in the Isambard-AI phase 2 cluster is unknown, it is possible to infer it using other systems as a reference, such as the _Alps_ system, belonging to the _Swiss National Supercomputing Centre_ @desensi2024.
+A possible implementation of this architecture for each switch is shown in @fig-switches.
 
 #figure(
 	image("../figures/Switch-diagrama.pdf"),
-	caption: [Distribución de los switches en el superordenador _Alps_],
+	caption: [Distribution of the switches in the _Alps_ supercomputer],
 	kind: "Image",
 	supplement: "Figure"
 ) <fig-switches>
 
-== Almacenamiento
-El almacenamiento responde a requisitos distintos de los de la simulación HPC clásica.
-El entrenamiento necesita lecturas de datasets a alta velocidad y escrituras periódicas de checkpoints, mientras que la inferencia exige un gran número de lecturas pequeñas y paralelas.
-Por ello, un sistema de ficheros paralelo tradicional no basta por sí solo @mcintosh2025.
-Para cubrirlo, Isambard-AI fase 2 combina tres niveles.
+== Storage
+Storage responds to requirements that differ from those of classical HPC simulation.
+Training requires high-speed reads of datasets and periodic writes of checkpoints, while inference demands a large number of small, parallel reads.
+For this reason, a traditional parallel file system alone is not enough @mcintosh2025.
+To cover this, Isambard-AI phase 2 combines three tiers.
 
-El primero es un almacenamiento all-flash HPE ClusterStor E1000 con Lustre, formado por 1056 SSD NVMe de 30.72 TB, con unos 20.3 PiB utilizables.
-El rendimiento agregado esperado alcanza hasta 2500 GB/s en lectura y 1980 GB/s en escritura, con 35 millones de IOPS de lectura aleatoria de 4 KB.
-El segundo es una plataforma SDS multiprotocolo y multiusuario basada en VAST Data, con unos 3.56 PB utilizables, pensada para cargas de IA y para aislar datos sensibles entre proyectos.
-El tercero son SSD locales de 3.84 TB en un subconjunto de nodos, destinados a datos pequeños o sensibles.
+The first is an all-flash HPE ClusterStor E1000 storage with Lustre, made up of 1056 NVMe SSDs of 30.72 TB each, with about 20.3 PiB usable.
+The expected aggregate performance reaches up to 2500 GB/s for reads and 1980 GB/s for writes, with 35 million random 4 KB read IOPS.
+The second is a multiprotocol, multi-tenant SDS platform based on VAST Data, with about 3.56 PB usable, designed for AI workloads and for isolating sensitive data between projects.
+The third is local 3.84 TB SSDs on a subset of nodes, intended for small or sensitive data.

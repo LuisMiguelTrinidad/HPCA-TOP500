@@ -1,43 +1,45 @@
 = Facility level system overview <sec-overview>
-A alto nivel, el cluster Isambard-AI está formado por un total de $5448$ superchips _NVIDIA GH200_ (Grace Hopper) @nvidia_gh200_2024 distribuidos a lo largo de 13 racks de alta densidad, lo que lo constituye de acuerdo con la taxonomía de Flynn como un sistema MIMD.
-El primer rack, un HPE Cray EX2500 pertenece al supercomputador Isambard-AI phase 1, mientras que los otros 12 racks, HPE Cray EX4000, pertenecen al superordenador Isambard-AI phase 2 @mcintosh2025, el que se desglosa en el presente documento.
+At a high level, the Isambard-AI cluster consists of a total of $5448$ _NVIDIA GH200_ (Grace Hopper) superchips @nvidia_gh200_2024 distributed across 13 high-density racks, which, according to Flynn's taxonomy, makes it a MIMD system.
+The first rack, an HPE Cray EX2500, belongs to the Isambard-AI phase 1 supercomputer, while the other 12 racks, HPE Cray EX4000, belong to the Isambard-AI phase 2 supercomputer @mcintosh2025, which is broken down in this document.
 
-El superordenador opera bajo un consumo energético de $5$ MW, proporcionando una potencia computacional máxima de $216.50$ Pflops en `FP64` en el benchmark Linpack @top500_isambard2_2025.
-Por otro lado, gracias a la arquitectura tensorial proporcionada por las GPU Nvidia, es capaz de alcanzar de forma teórica $21$ EFlops/s en formato FP8 @mcintosh2025.
+The supercomputer operates at a power consumption of $5$ MW, providing a maximum computing power of $216.50$ PFlops in `fp64` on the Linpack benchmark @top500_isambard2_2025.
+Moreover, thanks to the tensor architecture provided by the NVIDIA GPUs, it is theoretically capable of reaching $21$ EFlops/s in `fp8` format @mcintosh2025.
 
 == Brief history of the project
-La concepción del sistema responde de forma directa a políticas de soberanía de datos y seguridad nacional.
-A diferencia de infraestructuras paneuropeas desarrolladas bajo el consorcio EuroHPC, el gobierno británico desarrolló su propia estrategia bajo el programa _AI Research Resource_ (AIRR) @ukgov_airr_2025.
-Esta iniciativa gubernamental supuso la inyección inicial de 225 millones de libras esterlinas en otoño de 2023 @HPE2023IsambardAI.
+The conception of the system responds directly to data sovereignty and national security policies.
+Unlike pan-European infrastructures developed under the EuroHPC consortium, the British government developed its own strategy under the _AI Research Resource_ (AIRR) program @ukgov_airr_2025.
+This government initiative involved an initial injection of 225 million pounds in autumn of 2023 @HPE2023IsambardAI.
 
-La ejecución del proyecto recayó en la universidad de Bristol debido a su experiencia probada con el proyecto GW4 @mcintosh2019.
-Concretamente, el clúster está bajo la supervisión del Prof. Simon McIntosh-Smith, director del _Bristol Centre for Supercomputing_ (BriCS), y la Dra. Sadaf Alam, directora de tecnología (CTO) de la misma institución.
-El sistema fue ensamblado colaborativamente por Hewlett Packard Enterprise (HPE) y NVIDIA, y a pesar de la complejidad logística del mismo, la fase 1 fue completada en tiempo récord, pasando de la firma del contrato a un estado operacional en menos de 4 meses.
+Execution of the project was handed off to the University of Bristol, due to its proven experience with the GW4 project @mcintosh2019.
+Specifically, the cluster is overseen by Prof. Simon McIntosh-Smith, director of the _Bristol Centre for Supercomputing_ (BriCS), and Dr. Sadaf Alam, Chief Technology Officer (CTO) of the same institution.
+The system was assembled collaboratively by Hewlett Packard Enterprise (HPE) and NVIDIA, and despite the logistical complexity of the project, phase 1 was completed in record time, going from contract signing to operational status in less than 4 months.
 
 #figure(
 	image("../figures/vista_aerea.png"),
-	caption: [Vista aérea del centro de la construcción del centro de datos],
+	caption: [Aerial view of the center during construction of the data center],
 	kind: "Image",
 	supplement: "Figure"
 )
 
 == Facilities
-El sistema físico se aloja en el _National Composites Centre_ (NCC), ubicado en el _Bristol and Bath Science Park_. Comparte recinto con la fase 1 del proyecto Isambard-AI, así como con el cluster Isambard 3, basado exclusivamente en CPU Nvidia Grace.
-Debido a las estrictas limitaciones espaciales, con tan solo ~550 metros cuadrados disponibles ($15.6 times 35 m$) @mcintosh2025, el sistema no podía ser desplegado en una sala blanca convencional.
-En su lugar, se implementó una solución autocontenida que encapsula nodos, transformación eléctrica, y estaciones de bombeo dentro del propio habitáculo. Para ello se empleó una arquitectura de centro de datos modular, lo que permitió reducir un 72% de las emisiones derivadas de su construcción en comparación con los centros de datos convencionales @mcintosh2025.
+The physical system is housed in the _National Composites Centre_ (NCC), located in the _Bristol and Bath Science Park_.
+It shares the site with phase 1 of Isambard-AI, as well as with the Isambard 3 cluster, based exclusively on NVIDIA Grace CPUs.
+Due to strict space limitations, with only ~550 square meters available ($15.6 times 35 m$) @mcintosh2025, the system could not be deployed in a conventional clean room.
+Instead, a self-contained solution was implemented that encloses the nodes, electrical transformation, and pumping stations within the enclosure itself.
+To achieve this, a modular data center architecture was used, which made it possible to reduce by 72% the emissions derived from its construction compared with conventional data centers @mcintosh2025.
 
 #figure(
 	image("../figures/facilities_diagram.png"),
-	caption: [Diagrama de la distribución del sistema @mcintosh2025],
+	caption: [Diagram of the system layout @mcintosh2025],
 	kind: "Image",
 	supplement: "Figure"
 )
 
-Para disipar la alta densidad de energía térmica generada, que excede los $400$ kW por rack, el uso de refrigeración por aire convencional se presenta inviable.
-En su lugar, se emplea Refrigeración Líquida Directa, solución estandarizada en los chasis HPE Cray Ex @hpe_cray_ex_quickspecs.
-Esta aproximación no solo evita el sobrecalentamiento de los componentes, sino que su eficiencia convierte al sistema en un referente del paradigma Green AI, posicionándose su supercomputador gemelo, el Isambard AI-phase 1 en el puesto 4 del ranking Green AI de junio de 2026 @green500_june2026.
-Este hito en sostenibilidad es especialmente reseñable al haber sido alcanzado mediante aceleradores de la generación Hopper, los cuales exhiben consumos nominales por flop superiores en comparación con arquitecturas litográficamente más avanzadas, como Blackwell o Vera Rubin.
-El sistema ostenta una Efectividad del Uso de la Energía (PUE) nominal de $1.08$, lo que implica que solo el $8%$ de la energía consumida se destina a refrigeración periférica, ostensiblemente superior a la cifra común de sistemas refrigerados por aire, que ronda 1.54-1.56 @UptimeInstitute2025Survey.
+To dissipate the high density of thermal energy generated, which exceeds $400$ kW per rack, conventional air cooling is not feasible.
+Instead, Direct Liquid Cooling is used, a solution standardized in the HPE Cray EX chassis @hpe_cray_ex_quickspecs.
+This approach not only prevents overheating of the components, but its efficiency also makes the system a referent of the Green AI paradigm: its twin supercomputer, Isambard AI-phase 1, ranks 4th in the June 2026 Green AI ranking @green500_june2026.
+This sustainability milestone is especially notable for having been achieved with accelerators from the Hopper generation, which exhibit higher nominal energy consumption per flop than more lithographically advanced architectures, such as Blackwell or Vera Rubin.
+The system has a nominal Power Usage Effectiveness (PUE) of $1.08$, meaning that only $8%$ of the energy consumed goes to peripheral cooling, markedly better than the figure common for air-cooled systems, which hovers around 1.54–1.56 @UptimeInstitute2025Survey.
 
-El impacto medioambiental derivado del consumo de la máquina se minimiza a través de su política de aprovisionamiento eléctrico.
-Si bien su alto consumo de 5MW implicó la necesidad de una conexión de alta capacidad directa a la red eléctrica nacional británica, el 100% de la energía suministrada al sistema procede de fuentes renovables de Reino Unido, abarcando no solo sistemas eólicos, solares e hidroeléctricos, sino también sistemas de almacenamiento en baterías @bristol_isambard_sustainability_2026.
+The environmental impact of the machine's consumption is minimized through its electricity procurement policy.
+Although its high consumption of 5 MW required a high-capacity direct connection to the British national grid, 100% of the energy supplied to the system comes from renewable sources in the UK, covering not only wind, solar and hydroelectric systems but also battery storage systems @bristol_isambard_sustainability_2026.
