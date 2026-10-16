@@ -42,7 +42,7 @@ Como se observa en la @fig-neoverse_diagram, el frontend del procesador puede de
 Cuenta además con un predictor de saltos TAGE @seznec2006.
 
 El _backend_ dispone de $6$ unidades escalares enteras (ALU), de las cuales dos realizan operaciones `mul` y una de ellas también `fma`.
-Cuenta asímismo con $2$ unidades de salto, $4$ puertos FP/SIMD de $128$ bits, y $3$ unidades de generación de direcciones (AGU).
+Cuenta asimismo con $2$ unidades de salto, $4$ puertos FP/SIMD de $128$ bits, y $3$ unidades de generación de direcciones (AGU).
 Dos de las AGU atienden cargas y almacenamientos, mientras que la tercera solo cargas, lo que teóricamente permite hasta $3$ operaciones de memoria de $16$ bytes por ciclo.
 
 Por su parte, la memoria en este procesador sigue la siguiente jerarquía de memorias:
@@ -84,17 +84,12 @@ La comunicación entre hilos, explotada en el paralelismo a nivel de hilo (TLP),
   supplement: "Figure"
 ) <fig-grace>
 
-El número de operaciones de coma flotante por ciclo se obtiene de $4$ pipelines SIMD de $128$ bits, cada uno con $2$ carriles `fp64` que realizan una `FMA` ($2$ operaciones), lo que da $16$ FLOP/ciclo por núcleo.
-Con la frecuencia de reloj de $3.0$ GHz, el pico `fp64` del procesador completo es $72 times 16 times 3.0 "GHz" = 3.456$ TFLOPS.
+El procesador de 72 núcleos opera a 3.0 GHz utilizando 4 pipelines SIMD de 128 bits por núcleo, pertenecientes a la familia ARMv9 (SVE2/NEON). Se desglosan sus capacidades computacionales.
 
-Los pipelines SIMD pertenecen a la familia de instrucciones vectoriales de ARMv9 (SVE2, con compatibilidad NEON de $128$ bits). Esta familia no incluye una unidad matricial dedicada como SME, de modo que la aceleración de cargas de baja precisión se realiza con instrucciones de producto escalar. Por ejemplo, `SDOT` (`int8`) acumula en cada carril de $32$ bits cuatro productos, es decir, $16$ `mac` por instrucción sobre registros de $128$ bits, o $32$ operaciones contando cada `mac` como dos. Con $4$ pipelines, el pico por núcleo es $4 times 32 = 128$ OPS `int8` por ciclo, y para el procesador completo a $3.0$ GHz, $72 times 128 times 3.0 "GHz" approx 27.6$ TOPS `int8`.
-
-En coma flotante de $16$ bits, `BFDOT` (`bf16`) acumula dos productos en cada carril, es decir, $8$ `mac` o $16$ FLOP por instrucción. Con $4$ pipelines, el pico por núcleo es $4 times 16 = 64$ FLOP `bf16` por ciclo, lo que da $72 times 64 times 3.0 "GHz" approx 13.8$ TFLOPS `bf16` para el procesador completo.
-
-Estas cifras suponen que los $4$ pipelines ejecutan una instrucción de este tipo por ciclo.
-
-Suponiendo que los $4$ pipelines emiten una de estas instrucciones por ciclo, el pico teórico por núcleo es $4 times 64 = 256$ OPS `int8` y $4 times 32 = 128$ FLOP `fp16` por ciclo.
-Para el procesador completo a $3.0$ GHz, esto supone unos $55$ TOPS `int8` y $27.6$ TFLOPS `bf16`.
+	- *`fp64`:* Cada pipeline incluye 2 carriles realizando una `FMA` (2 operaciones). Esto genera 16 FLOP/ciclo por núcleo. El pico total es $72 times 16 times 3.0 "GHz" = 3.456$ TFLOPS.
+	- *`fp32`:* Cada pipeline incluye 4 carriles realizando una `FMA` (2 operaciones). Esto genera 32 FLOP/ciclo por núcleo. El pico total es $72 times 32 times 3.0 "GHz" = 6.912$ TFLOPS.
+	- *`bf16`:* La instrucción `BFDOT` acumula 2 productos por carril de 32 bits, lo que equivale a 8 `mac` (16 FLOP) por instrucción. Esto resulta en 64 FLOP/ciclo por núcleo. El pico total es $72 times 64 times 3.0 "GHz" approx 13.8$ TFLOPS.
+	- *`int8`:* La instrucción `SDOT` acumula 4 productos por carril de 32 bits, resultando en 16 `mac` (32 operaciones) por instrucción sobre registros de 128 bits. Esto da 128 OPS/ciclo por núcleo. El pico total es $72 times 128 times 3.0 "GHz" approx 27.6$ TOPS.
 
 == The GPU
 Cada superchip incorpora una GPU H100 con $132$ multiprocesadores (SM) habilitados, de un total de $144$ en el die @chipsandcheese_gh200.
@@ -122,7 +117,7 @@ Se describe a continuación la misma en dos partes: primero la jerarquía de mem
       [HBM3], 			[$96$ GB], 					[---], 				[$approx 4$ TB/s],	 	[$approx 290$--$480$c],
       table.hline(stroke: 1pt),
     )
-  ], /* Los datos de 256/SM y 32/slice parecen estar mal */
+  ],
   caption: [Jerarquía de memoria de la GPU H100 (Hopper) del superchip GH200. Datos de latencias de @spheron_hierarchy],
   supplement: "Table",
   kind: "Table",
@@ -192,6 +187,77 @@ Las intensidades explican dónde está el cuello de botella.
 Un kernel FP64 CUDA ya necesita unos $8.5$ FLOP por byte de HBM3 para saturar el cómputo, mientras que el FP16 tensorial necesita unos $247$.
 Las cargas de entrenamiento de modelos de lenguaje reutilizan mucho cada dato y pueden alcanzar esa intensidad, pero los kernels de baja intensidad quedan limitados por la memoria.
 
-Por último, la GPU H100 se corresponde con la categoría SIMD de Flynn en su modelo SIMT.
-Un mismo _warp_ de $32$ hilos emite una única instrucción por ciclo sobre datos distintos, mientras que los $132$ multiprocesadores operan de forma independiente, lo que aporta un nivel MIMD.
-Dentro de cada SM, la planificación de hasta $64$ _warps_ residentes oculta las latencias de memoria mediante el cambio de contexto entre _warps_, en lugar de la ejecución fuera de orden.
+== Benchmarking
+Los resultados se dividen en dos bloques: la CPU Grace, medida por Phoronix @phoronix_gh200, y la GPU H100, para la que solo hay datos de fabricante y de terceros con configuraciones distintas.
+
+=== CPU Grace
+Phoronix compara los 72 núcleos del GH200 con el AMD EPYC 9654 y el Intel Xeon 8592+, bajo Ubuntu 23.10, Linux 6.5 y GCC 13.
+El equipo probado es un escritorio de GPTshop.ai con 480 GB de LPDDR5X, no el clúster Isambard-AI: como comparten la CPU, los resultados caracterizan el procesador y no el sistema completo.
+
+#figure(
+  align(center)[
+    #set text(size: 7pt)
+    #table(
+      columns: (auto, auto, auto, auto, auto),
+      align: (left, left, right, right, right),
+      stroke: none,
+      inset: (x: 4pt, y: 3pt),
+
+      table.hline(stroke: 1pt),
+      table.header(
+        [*Benchmark*], [*Carga*], [*Grace (GH200)*], [*EPYC 9654*], [*Xeon 8592+*],
+      ),
+      table.hline(stroke: 0.5pt),
+      [HPCG (GFLOP/s)], [limitada por memoria], [32.13], [43.97], [35.42],
+      [Graph500 (TEPS)], [acceso irregular], [$1.24 times 10^9$], [$0.816 times 10^9$], [$1.199 times 10^9$],
+      [LULESH z/s], [hidrodinámica], [23185], [23701], [72625],
+      table.hline(stroke: 1pt),
+    )
+  ],
+  caption: [Resultados de benchmarks de la CPU Grace frente a procesadores de referencia @phoronix_gh200],
+  supplement: "Table",
+  kind: "Table",
+) <tab-phoronix>
+
+En HPCG, la Grace obtiene un 27 % menos que el EPYC 9654, pese a su ancho de banda pico de 512 GB/s.
+En Graph500, con accesos irregulares, supera a ambos procesadores x86.
+En LULESH queda a la par del EPYC, mientras que el Xeon triplica ese resultado.
+El ancho de banda pico, por tanto, no basta para predecir el rendimiento.
+
+=== GPU H100
+Para la GPU, NVIDIA publica una comparativa de la variante GH200 de 144 GB frente a una referencia x86 y a un sistema x86 con H100 @nvidia_gh200_perf.
+La gráfica no detalla la configuración de referencia, así que son cifras de fabricante.
+
+#figure(
+  align(center)[
+    #set text(size: 7pt)
+    #table(
+      columns: (auto, auto, auto, auto),
+      align: (left, left, right, right),
+      stroke: none,
+      inset: (x: 4pt, y: 3pt),
+
+      table.hline(stroke: 1pt),
+      table.header(
+        [*Carga*], [*Tipo*], [*x86 + H100*], [*GH200 (144 GB)*],
+      ),
+      table.hline(stroke: 0.5pt),
+      [ICON], [HPC], [6×], [8×],
+      [MILC], [HPC], [27×], [41×],
+      [Quantum Fourier Transform], [HPC], [61×], [94×],
+      [DLRM inferencia (100 GB)], [IA], [9×], [18×],
+      [Búsqueda vectorial IVF-PQ], [IA], [25×], [33×],
+      [GNN training (500 GB)], [IA], [5×], [40×],
+      table.hline(stroke: 1pt),
+    )
+  ],
+  caption: [Aceleración frente a una referencia x86 (1.0×), según NVIDIA @nvidia_gh200_perf],
+  supplement: "Table",
+  kind: "Table",
+) <tab-gh200-nvidia>
+
+Como contraste independiente, Databricks midió en nodos de 8 H100 SXM de 80 GB frente a A100 80 GB @databricks_h100.
+El entrenamiento en BF16 es 2.2× más rápido, y con FP8 llega hasta 3.3×.
+Las multiplicaciones de matrices alcanzan cerca de 5× frente a un máximo teórico de 6.3×, mientras que las operaciones limitadas por memoria mejoran como mucho 1.6×, en línea con la ventaja de ancho de banda de H100 sobre A100.
+
+Estas cifras son de la GPU en otra configuración y de otra generación de software, así que sirven como referencia del comportamiento de la GPU, no como medida del GH200 del clúster.

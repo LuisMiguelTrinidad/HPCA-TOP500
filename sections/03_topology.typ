@@ -1,4 +1,4 @@
-= Rack & System Interconnect Level <sec-topology>
+= Rack, Interconnection & Storage <sec-topology>
 La arquitectura a nivel de rack e interconexión está diseñada de forma jerárquica para maximizar la densidad de cómputo y minimizar la latencia, respondiendo a las exigencias operacionales de las cargas de trabajo de inteligencia artificial contemporáneas.
 
 A nivel de bastidor, cada uno de los $12$ HPE Cray EX4000 @mcintosh2025 disponibles contiene un total de $110$ nodos computacionales, lo que proporciona un total de $440$ superchips NVIDIA GH200 por armario.
@@ -43,3 +43,14 @@ Aunque se desconoce la implementación exacta de esta topología en el clúster 
 	kind: "Image",
 	supplement: "Figure"
 ) <fig-switches>
+
+== Almacenamiento
+El almacenamiento responde a requisitos distintos de los de la simulación HPC clásica.
+El entrenamiento necesita lecturas de datasets a alta velocidad y escrituras periódicas de checkpoints, mientras que la inferencia exige un gran número de lecturas pequeñas y paralelas.
+Por ello, un sistema de ficheros paralelo tradicional no basta por sí solo @mcintosh2025.
+Para cubrirlo, Isambard-AI fase 2 combina tres niveles.
+
+El primero es un almacenamiento all-flash HPE ClusterStor E1000 con Lustre, formado por 1056 SSD NVMe de 30.72 TB, con unos 20.3 PiB utilizables.
+El rendimiento agregado esperado alcanza hasta 2500 GB/s en lectura y 1980 GB/s en escritura, con 35 millones de IOPS de lectura aleatoria de 4 KB.
+El segundo es una plataforma SDS multiprotocolo y multiusuario basada en VAST Data, con unos 3.56 PB utilizables, pensada para cargas de IA y para aislar datos sensibles entre proyectos.
+El tercero son SSD locales de 3.84 TB en un subconjunto de nodos, destinados a datos pequeños o sensibles.
